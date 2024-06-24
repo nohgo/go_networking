@@ -1,44 +1,28 @@
 package main
 
 import (
-	"bufio"
 	"log"
-	"net"
-	"os"
+	"net/http"
 )
 
+type defaultHandler struct{}
+
 func main() {
-	ln, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		log.Fatal("listener error")
-	}
-	defer ln.Close()
-	log.Printf("server started at %v", ln.Addr())
-
-	go listenInput(func() { log.Fatal("server closed"); ln.Close(); return })
-
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			log.Fatal("connection error")
-		}
-
-		go handleConnection(conn)
-	}
+	var defh = defaultHandler{}
+	http.Handle("/", defh)
+	log.Printf("server started at %v", http.ListenAndServe(":8080", nil))
 }
 
-func handleConnection(conn net.Conn) {
-	log.Printf("%v", conn.RemoteAddr())
-	conn.Write([]byte{'h', 'e', 'l', 'l', 'l', 'o'})
-	conn.Close()
+func (d defaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.RemoteAddr)
+	w.WriteHeader(200)
+	w.Write(strToByteSlice("hello curl"))
 }
 
-func listenInput(fn func()) {
-	for {
-		reader := bufio.NewReader(os.Stdin)
-		text, _ := reader.ReadString('\n')
-		if text == "^C\n" {
-			fn()
-		}
+func strToByteSlice(str string) (result []byte) {
+	result = make([]byte, len(str))
+	for i, v := range str {
+		result[i] = byte(v)
 	}
+	return
 }
