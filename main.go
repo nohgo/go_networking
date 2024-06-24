@@ -28,7 +28,7 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
-	log.Printf("%v", conn)
+	log.Printf("%v", conn.RemoteAddr())
 	conn.Write([]byte{'h', 'e', 'l', 'l', 'l', 'o'})
 	conn.Close()
 }
@@ -37,7 +37,7 @@ func listenInput(fn func()) {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		text, _ := reader.ReadString('\n')
-		if text == "q\n" {
+		if text == "^C\n" {
 			fn()
 		}
 	}
