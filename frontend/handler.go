@@ -7,14 +7,11 @@ import (
 
 type FrontendHandler struct{}
 
-func (d FrontendHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		apiGet(w, r)
-	}
+func (d FrontendHandler) InitRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/", index)
 }
 
-func apiGet(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 	http.ServeFile(w, r, "frontend/html/index.html")
 }

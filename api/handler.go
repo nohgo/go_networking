@@ -7,14 +7,11 @@ import (
 
 type ApiHandler struct{}
 
-func (d ApiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		apiGet(w, r)
-	}
+func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /api/names", apiGetAll)
 }
 
-func apiGet(w http.ResponseWriter, r *http.Request) {
+func apiGetAll(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 	w.Write([]byte("hello"))
 }

@@ -7,8 +7,16 @@ import (
 	"net/http"
 )
 
+type Router interface {
+	InitRoutes(*http.ServeMux)
+}
+
 func main() {
-	http.Handle("/api", api.ApiHandler{})
-	http.Handle("/", frontend.FrontendHandler{})
-	log.Printf("server started at %v", http.ListenAndServe(":8080", nil))
+	mux := http.NewServeMux()
+	routers := []Router{api.ApiHandler{}, frontend.FrontendHandler{}}
+	for _, v := range routers {
+		v.InitRoutes(mux)
+	}
+	//http.Handle("/", frontend.FrontendHandler{})
+	log.Printf("server started at %v", http.ListenAndServe(":8080", mux))
 }
