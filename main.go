@@ -17,6 +17,5 @@ func main() {
 	for _, v := range routers {
 		v.InitRoutes(mux)
 	}
-	//http.Handle("/", frontend.FrontendHandler{})
-	log.Printf("server started at %v", http.ListenAndServe(":8080", mux))
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
