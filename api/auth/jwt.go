@@ -13,7 +13,8 @@ func CreateToken() (tokenString string, err error) {
 	return
 }
 
-func ParseToken(tokenString string) (string, error) {
+// middleware should be used to parse token
+func parseToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte("hello"), nil
 	})
