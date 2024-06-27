@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/nohgo/go_networking/api/security"
+	"github.com/nohgo/go_networking/api/auth"
 	"log"
 	"net/http"
 )
@@ -9,16 +9,16 @@ import (
 type ApiHandler struct{}
 
 func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api/users", login)
-	mux.HandleFunc("POST /api/users/{token}", getAll)
+	mux.HandleFunc("POST /api/users", login)
+	mux.HandleFunc("GET /api/users", auth.ProtectedMiddle(getAll))
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
-	token, err := jwt.CreateToken()
+	token, err := auth.CreateToken()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Panic(err)
+		log.Println(err)
 		return
 	}
 	w.Write([]byte("Bearer " + token))
@@ -26,13 +26,5 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 func getAll(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
-	token := r.PathValue("token")
-	name, err := jwt.ParseToken(token)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Panic(err)
-		return
-	}
-
-	w.Write([]byte(name))
+	w.Write([]byte(r.Header["Authorization"][0]))
 }
