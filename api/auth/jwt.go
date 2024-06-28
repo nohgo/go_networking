@@ -3,20 +3,23 @@ package auth
 import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
+	"os"
 )
 
-func CreateToken() (tokenString string, err error) {
+var key string = os.Getenv("GO_NETWORKING_KEY")
+
+func CreateToken(name string) (tokenString string, err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"name": "noh",
+		"name": name,
 	})
-	tokenString, err = token.SignedString([]byte("hello"))
+	tokenString, err = token.SignedString([]byte(key))
 	return
 }
 
 // middleware should be used to parse token
 func parseToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte("hello"), nil
+		return []byte(key), nil
 	})
 	if err != nil {
 		return "", err

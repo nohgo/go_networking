@@ -15,7 +15,7 @@ func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
 
 func login(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
-	token, err := auth.CreateToken()
+	token, err := auth.CreateToken("noh")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
