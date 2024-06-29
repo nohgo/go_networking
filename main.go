@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/nohgo/go_networking/api"
+	"github.com/nohgo/go_networking/api/database"
 	"github.com/nohgo/go_networking/frontend"
 	"log"
 	"net/http"
@@ -17,5 +18,9 @@ func main() {
 	for _, v := range routers {
 		v.InitRoutes(mux)
 	}
+
+	db.CreatePool()
+	defer db.ClosePool()
+
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
