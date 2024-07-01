@@ -26,6 +26,22 @@ func (ur *postgresUserRepository) Add(user models.User) error {
 	return err
 }
 
-func (*postgresUserRepository) GetAll() ([]models.User, error) {
-	return nil, nil
+func (ur *postgresUserRepository) GetAll() ([]models.User, error) {
+	rows, err := ur.pool.Query("SELECT * FROM users")
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	users := make([]models.User, 0)
+	for rows.Next() {
+		var user models.User
+		if err := rows.Scan(&user); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
 }
