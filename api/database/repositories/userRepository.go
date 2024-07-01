@@ -34,11 +34,12 @@ func (ur *postgresUserRepository) GetAll() ([]models.User, error) {
 	}
 	users := make([]models.User, 0)
 	for rows.Next() {
-		var user models.User
-		if err := rows.Scan(&user); err != nil {
+		var username string
+		var password string
+		if err := rows.Scan(&username, &password); err != nil {
 			return nil, err
 		}
-		users = append(users, user)
+		users = append(users, models.User{Username: username, Password: password})
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
