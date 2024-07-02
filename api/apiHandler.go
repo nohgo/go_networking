@@ -1,11 +1,10 @@
 package api
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 
-	//"github.com/nohgo/go_networking/api/auth"
 	repo "github.com/nohgo/go_networking/api/database/repositories"
 	svc "github.com/nohgo/go_networking/api/services"
 )
@@ -38,5 +37,13 @@ func getAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("%v", users)))
+	jsonUsers, err := json.Marshal(users)
+
+	if err != nil {
+		w.WriteHeader(500)
+		log.Println(err)
+		return
+	}
+
+	w.Write(jsonUsers)
 }
