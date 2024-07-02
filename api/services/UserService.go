@@ -1,6 +1,9 @@
 package svc
 
 import (
+	"errors"
+
+	"github.com/nohgo/go_networking/api/auth"
 	repo "github.com/nohgo/go_networking/api/database/repositories"
 	"github.com/nohgo/go_networking/api/models"
 )
@@ -12,10 +15,28 @@ type UserService struct {
 func NewUserService(ur repo.UserRepository) *UserService {
 	return &UserService{ur: ur}
 }
-func (us *UserService) Register(name string, pass string) (err error) {
-	err = us.ur.Add(models.User{Username: name, Password: pass})
+func (us *UserService) Register(user models.User) (err error) {
+	err = us.ur.Add(user)
 	return
 }
 func (us *UserService) GetAll() ([]models.User, error) {
 	return us.ur.GetAll()
+}
+func (us *UserService) Login(user models.User) (token string, err error) {
+	exists, err := us.ur.AreValidCredentials(user)
+
+	if err != nil {
+		return "", err
+	}
+	if !exists {
+		return "", errors.New("Invalid credentials")
+	}
+
+	token, err = auth.CreateToken(user.Username)
+
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

@@ -11,6 +11,7 @@ import (
 type UserRepository interface {
 	Add(models.User) error
 	GetAll() ([]models.User, error)
+	AreValidCredentials(models.User) (bool, error)
 }
 
 type postgresUserRepository struct {
@@ -45,4 +46,16 @@ func (ur *postgresUserRepository) GetAll() ([]models.User, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func (ur *postgresUserRepository) AreValidCredentials(user models.User) (bool, error) {
+	row := ur.pool.QueryRow(fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM users WHERE username = '%v' AND password = '%v');", user.Username, user.Password))
+
+	var exists bool
+	err := row.Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }

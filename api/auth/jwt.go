@@ -10,7 +10,7 @@ var key string = os.Getenv("GO_NETWORKING_KEY")
 
 func CreateToken(name string) (tokenString string, err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"name": name,
+		"username": name,
 	})
 	tokenString, err = token.SignedString([]byte(key))
 	return
@@ -28,9 +28,9 @@ func parseToken(tokenString string) (string, error) {
 	if !ok {
 		return "", errors.New("invalid token")
 	}
-	switch claims["name"].(type) {
+	switch claims["username"].(type) {
 	case string:
-		return claims["name"].(string), err
+		return claims["username"].(string), err
 	default:
 		return "", errors.New("invalid claims")
 	}
