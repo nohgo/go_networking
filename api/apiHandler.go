@@ -21,8 +21,18 @@ func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
 
 func register(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
+
 	us := svc.NewUserService(repo.NewUserRepository())
-	if err := us.Register(models.User{Username: "arya", Password: "hello"}); err != nil {
+
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := us.Register(user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
