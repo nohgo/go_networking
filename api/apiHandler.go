@@ -16,7 +16,7 @@ type ApiHandler struct{}
 func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/auth/sign-up", register)
 	mux.HandleFunc("POST /api/auth/login", login)
-	mux.HandleFunc("GET /api/users", auth.ProtectedMiddle(getAll))
+	mux.HandleFunc("GET /api/cars", auth.ProtectedMiddle(getAll))
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
@@ -68,20 +68,23 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 func getAll(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
+
 	us := svc.NewUserService(repo.NewUserRepository())
-	users, err := us.GetAll()
+
+	username := r.Header.Get("authorization")
+	cars, err := us.GetAll(username)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	jsonUsers, err := json.Marshal(users)
+	jsonCars, err := json.Marshal(cars)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Write(jsonUsers)
+	w.Write(jsonCars)
 }
