@@ -23,7 +23,7 @@ func NewUserRepository() *postgresUserRepository {
 }
 
 func (ur *postgresUserRepository) Add(user models.User) error {
-	_, err := ur.pool.Exec(fmt.Sprintf("INSERT INTO users (username, password) VALUES ('%v', '%v')", user.Username, user.Password))
+	_, err := ur.pool.Exec(fmt.Sprintf("INSERT INTO users (username, password, cars) VALUES ('%v', '%v')", user.Username, user.Password))
 	return err
 }
 
