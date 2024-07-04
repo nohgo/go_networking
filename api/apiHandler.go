@@ -69,7 +69,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 func getAll(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 
-	us := svc.NewUserService(repo.NewUserRepository())
+	us := svc.NewCarService(repo.NewCarRepository())
 
 	username := r.Header.Get("authorization")
 	cars, err := us.GetAll(username)

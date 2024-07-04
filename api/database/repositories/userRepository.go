@@ -10,7 +10,6 @@ import (
 
 type UserRepository interface {
 	Add(models.User) error
-	GetAll(string) ([]models.Car, error)
 	AreValidCredentials(models.User) (bool, error)
 }
 
@@ -25,28 +24,6 @@ func NewUserRepository() *postgresUserRepository {
 func (ur *postgresUserRepository) Add(user models.User) error {
 	_, err := ur.pool.Exec(fmt.Sprintf("INSERT INTO users (username, password) VALUES ('%v', '%v')", user.Username, user.Password))
 	return err
-}
-
-func (ur *postgresUserRepository) GetAll(username string) ([]models.Car, error) {
-	rows, err := ur.pool.Query(fmt.Sprintf("SELECT * FROM cars WHERE username='%v'", username))
-	defer rows.Close()
-	if err != nil {
-		return nil, err
-	}
-	cars := make([]models.Car, 0)
-	for rows.Next() {
-		var carMake string
-		var model string
-		var year int
-		if err := rows.Scan(&carMake, &model, &year); err != nil {
-			return nil, err
-		}
-		cars = append(cars, models.Car{Make: carMake, Model: model, Year: year})
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return cars, nil
 }
 
 func (ur *postgresUserRepository) AreValidCredentials(user models.User) (bool, error) {

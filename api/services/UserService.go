@@ -19,9 +19,6 @@ func (us *UserService) Register(user models.User) (err error) {
 	err = us.ur.Add(user)
 	return
 }
-func (us *UserService) GetAll(username string) ([]models.Car, error) {
-	return us.ur.GetAll(username)
-}
 func (us *UserService) Login(user models.User) (token string, err error) {
 	exists, err := us.ur.AreValidCredentials(user)
 
