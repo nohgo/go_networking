@@ -10,6 +10,7 @@ import (
 
 type CarRepository interface {
 	GetAll(string) ([]models.Car, error)
+	Add(models.Car, string) error
 }
 
 type postgresCarRepository struct {
@@ -31,13 +32,20 @@ func (cr *postgresCarRepository) GetAll(username string) ([]models.Car, error) {
 		var carMake string
 		var model string
 		var year int
-		if err := rows.Scan(&carMake, &model, &year); err != nil {
+		var id int
+		var username string //don't want to show username in end struct
+		if err := rows.Scan(&id, &carMake, &model, &year, &username); err != nil {
 			return nil, err
 		}
-		cars = append(cars, models.Car{Make: carMake, Model: model, Year: year})
+		cars = append(cars, models.Car{Id: id, Make: carMake, Model: model, Year: year})
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 	return cars, nil
+}
+
+func (cr *postgresCarRepository) Add(car models.Car, username string) error {
+	_, err := cr.pool.Exec(fmt.Sprintf("INSERT INTO cars (make, model, year, username) VALUES('%v', '%v', '%v', '%v')", car.Make, car.Model, car.Year, username))
+	return err
 }

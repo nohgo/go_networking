@@ -17,6 +17,7 @@ func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/auth/sign-up", register)
 	mux.HandleFunc("POST /api/auth/login", login)
 	mux.HandleFunc("GET /api/cars", auth.ProtectedMiddle(getAll))
+	mux.HandleFunc("POST /api/cars", auth.ProtectedMiddle(postCar))
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
@@ -69,10 +70,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 func getAll(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 
-	us := svc.NewCarService(repo.NewCarRepository())
+	cs := svc.NewCarService(repo.NewCarRepository())
 
 	username := r.Header.Get("authorization")
-	cars, err := us.GetAll(username)
+	cars, err := cs.GetAll(username)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -87,4 +88,24 @@ func getAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(jsonCars)
+}
+
+func postCar(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.RemoteAddr)
+
+	cs := svc.NewCarService(repo.NewCarRepository())
+
+	var car models.Car
+
+	if err := json.NewDecoder(r.Body).Decode(&car); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	username := r.Header.Get("authorization")
+	if err := cs.Add(car, username); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }

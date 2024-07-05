@@ -16,3 +16,7 @@ func NewCarService(cr repo.CarRepository) *CarService {
 func (cs *CarService) GetAll(username string) ([]models.Car, error) {
 	return cs.cr.GetAll(username)
 }
+
+func (cs *CarService) Add(car models.Car, username string) error {
+	return cs.cr.Add(car, username)
+}
