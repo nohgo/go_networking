@@ -1,12 +1,12 @@
 package api
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/nohgo/go_networking/api/auth"
 	repo "github.com/nohgo/go_networking/api/database/repositories"
+	"github.com/nohgo/go_networking/api/help"
 	"github.com/nohgo/go_networking/api/models"
 	svc "github.com/nohgo/go_networking/api/services"
 )
@@ -26,11 +26,8 @@ func register(w http.ResponseWriter, r *http.Request) {
 	us := svc.NewUserService(repo.NewUserRepository())
 
 	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	if err, code := help.DecodeStruct(r, &user); err != nil {
+		http.Error(w, err.Error(), code)
 	}
 
 	if err := us.Register(user); err != nil {
@@ -44,11 +41,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 	us := svc.NewUserService(repo.NewUserRepository())
 
 	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	if err, code := help.DecodeStruct(r, &user); err != nil {
+		http.Error(w, err.Error(), code)
 	}
 
 	token, err := us.Login(user)
@@ -58,13 +52,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonToken, err := json.Marshal(token)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	w.Write(jsonToken)
+	help.SendJson(w, token)
 }
 
 func getAll(w http.ResponseWriter, r *http.Request) {
@@ -79,15 +67,7 @@ func getAll(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	jsonCars, err := json.Marshal(cars)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(jsonCars)
+	help.SendJson(w, cars)
 }
 
 func postCar(w http.ResponseWriter, r *http.Request) {
@@ -96,9 +76,8 @@ func postCar(w http.ResponseWriter, r *http.Request) {
 	cs := svc.NewCarService(repo.NewCarRepository())
 
 	var car models.Car
-
-	if err := json.NewDecoder(r.Body).Decode(&car); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err, code := help.DecodeStruct(r, &car); err != nil {
+		http.Error(w, err.Error(), code)
 		return
 	}
 

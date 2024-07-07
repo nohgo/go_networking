@@ -29,15 +29,12 @@ func (cr *postgresCarRepository) GetAll(username string) ([]models.Car, error) {
 	}
 	cars := make([]models.Car, 0)
 	for rows.Next() {
-		var carMake string
-		var model string
-		var year int
-		var id int
-		var username string //don't want to show username in end struct
-		if err := rows.Scan(&id, &carMake, &model, &year, &username); err != nil {
+		var car models.Car
+		var _username string
+		if err := rows.Scan(&car.Id, &car.Make, &car.Model, &car.Year, &_username); err != nil {
 			return nil, err
 		}
-		cars = append(cars, models.Car{Id: id, Make: carMake, Model: model, Year: year})
+		cars = append(cars, car)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
