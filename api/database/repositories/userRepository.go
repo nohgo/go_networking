@@ -2,7 +2,9 @@ package repo
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+
 	_ "github.com/lib/pq"
 	"github.com/nohgo/go_networking/api/database"
 	"github.com/nohgo/go_networking/api/models"
@@ -37,7 +39,7 @@ func (ur *postgresUserRepository) AreValidCredentials(user models.User) (bool, e
 	var foundPassword string
 	err := row.Scan(&foundPassword)
 	if err != nil {
-		return false, err
+		return false, errors.New("Invalid credentials")
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(foundPassword), []byte(user.Password)); err != nil {
