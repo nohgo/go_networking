@@ -6,6 +6,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/nohgo/go_networking/api/database"
 	"github.com/nohgo/go_networking/api/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRepository interface {
@@ -22,18 +23,26 @@ func NewUserRepository() *postgresUserRepository {
 }
 
 func (ur *postgresUserRepository) Add(user models.User) error {
-	_, err := ur.pool.Exec(fmt.Sprintf("INSERT INTO users (username, password) VALUES ('%v', '%v')", user.Username, user.Password))
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
+	if err != nil {
+		return err
+	}
+	_, err = ur.pool.Exec(fmt.Sprintf("INSERT INTO users (username, password) VALUES ('%v', '%v')", user.Username, string(hashedPassword)))
 	return err
 }
 
 func (ur *postgresUserRepository) AreValidCredentials(user models.User) (bool, error) {
-	row := ur.pool.QueryRow(fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM users WHERE username = '%v' AND password = '%v');", user.Username, user.Password))
+	row := ur.pool.QueryRow(fmt.Sprintf("SELECT password FROM users WHERE username = '%v';", user.Username))
 
-	var exists bool
-	err := row.Scan(&exists)
+	var foundPassword string
+	err := row.Scan(&foundPassword)
 	if err != nil {
 		return false, err
 	}
 
-	return exists, nil
+	if err = bcrypt.CompareHashAndPassword([]byte(foundPassword), []byte(user.Password)); err != nil {
+		return false, nil
+	}
+
+	return true, nil
 }
