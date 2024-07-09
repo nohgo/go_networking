@@ -20,3 +20,7 @@ func (cs *CarService) GetAll(username string) ([]models.Car, error) {
 func (cs *CarService) Add(car models.Car, username string) error {
 	return cs.cr.Add(car, username)
 }
+
+func (cs *CarService) Delete(id int, username string) error {
+	return cs.cr.Delete(id, username)
+}

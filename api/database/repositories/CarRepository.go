@@ -11,6 +11,7 @@ import (
 type CarRepository interface {
 	GetAll(string) ([]models.Car, error)
 	Add(models.Car, string) error
+	Delete(int, string) error
 }
 
 type postgresCarRepository struct {
@@ -44,5 +45,10 @@ func (cr *postgresCarRepository) GetAll(username string) ([]models.Car, error) {
 
 func (cr *postgresCarRepository) Add(car models.Car, username string) error {
 	_, err := cr.pool.Exec(fmt.Sprintf("INSERT INTO cars (make, model, year, username) VALUES('%v', '%v', '%v', '%v')", car.Make, car.Model, car.Year, username))
+	return err
+}
+
+func (cr *postgresCarRepository) Delete(id int, username string) error {
+	_, err := cr.pool.Exec(fmt.Sprintf("DELETE FROM cars WHERE id='%v'", id))
 	return err
 }
