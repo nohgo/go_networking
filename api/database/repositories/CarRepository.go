@@ -2,7 +2,6 @@ package repo
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/nohgo/go_networking/api/database"
 	"github.com/nohgo/go_networking/api/models"
@@ -23,11 +22,12 @@ func NewCarRepository() *postgresCarRepository {
 }
 
 func (cr *postgresCarRepository) GetAll(username string) ([]models.Car, error) {
-	rows, err := cr.pool.Query(fmt.Sprintf("SELECT * FROM cars WHERE username='%v'", username))
-	defer rows.Close()
+	rows, err := cr.pool.Query("SELECT * FROM cars WHERE username=$1", username)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	cars := make([]models.Car, 0)
 	for rows.Next() {
 		var car models.Car
@@ -44,11 +44,11 @@ func (cr *postgresCarRepository) GetAll(username string) ([]models.Car, error) {
 }
 
 func (cr *postgresCarRepository) Add(car models.Car, username string) error {
-	_, err := cr.pool.Exec(fmt.Sprintf("INSERT INTO cars (make, model, year, username) VALUES('%v', '%v', '%v', '%v')", car.Make, car.Model, car.Year, username))
+	_, err := cr.pool.Exec("INSERT INTO cars (make, model, year, username) VALUES($1, $2, $3, $4)", car.Make, car.Model, car.Year, username)
 	return err
 }
 
 func (cr *postgresCarRepository) Delete(id int, username string) error {
-	_, err := cr.pool.Exec(fmt.Sprintf("DELETE FROM cars WHERE id='%v'", id))
+	_, err := cr.pool.Exec("DELETE FROM cars WHERE id=$1", id)
 	return err
 }

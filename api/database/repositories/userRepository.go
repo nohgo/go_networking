@@ -3,8 +3,6 @@ package repo
 import (
 	"database/sql"
 	"errors"
-	"fmt"
-
 	_ "github.com/lib/pq"
 	"github.com/nohgo/go_networking/api/database"
 	"github.com/nohgo/go_networking/api/models"
@@ -29,12 +27,12 @@ func (ur *postgresUserRepository) Add(user models.User) error {
 	if err != nil {
 		return err
 	}
-	_, err = ur.pool.Exec(fmt.Sprintf("INSERT INTO users (username, password) VALUES ('%v', '%v')", user.Username, string(hashedPassword)))
+	_, err = ur.pool.Exec("INSERT INTO users (username, password) VALUES ('$1', '$2')", user.Username, string(hashedPassword))
 	return err
 }
 
 func (ur *postgresUserRepository) AreValidCredentials(user models.User) (bool, error) {
-	row := ur.pool.QueryRow(fmt.Sprintf("SELECT password FROM users WHERE username = '%v';", user.Username))
+	row := ur.pool.QueryRow("SELECT password FROM users WHERE username = '$1';", user.Username)
 
 	var foundPassword string
 	err := row.Scan(&foundPassword)
