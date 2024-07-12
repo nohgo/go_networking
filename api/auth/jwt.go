@@ -2,36 +2,48 @@ package auth
 
 import (
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
 	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var key string = os.Getenv("GO_NETWORKING_KEY")
 
+type JWTClaims struct {
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
+
 func CreateToken(name string) (tokenString string, err error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": name,
-	})
+	claims := JWTClaims{
+		name,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * 7 * time.Hour)),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err = token.SignedString([]byte(key))
 	return
 }
 
 // middleware should be used to parse token
 func parseToken(tokenString string) (string, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (any, error) {
 		return []byte(key), nil
 	})
 	if err != nil {
 		return "", err
 	}
-	claims, ok := token.Claims.(jwt.MapClaims)
+
+	claims, ok := token.Claims.(*JWTClaims)
 	if !ok {
-		return "", errors.New("invalid token")
+		return "", errors.New("Invalid claims")
 	}
-	switch claims["username"].(type) {
-	case string:
-		return claims["username"].(string), err
-	default:
-		return "", errors.New("invalid claims")
+
+	if time.Now().After(claims.RegisteredClaims.ExpiresAt.Time) {
+		return "", errors.New("Token expired")
 	}
+
+	return claims.Username, nil
 }
