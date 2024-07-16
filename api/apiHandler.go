@@ -25,7 +25,7 @@ func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
 func register(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 
-	us := svc.NewUserService(repo.NewUserRepository())
+	us := svc.NewUserService(repo.NewPostgresUserRepository())
 
 	var user models.User
 	if err, code := help.DecodeStruct(r, &user); err != nil {
@@ -40,7 +40,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 func login(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
-	us := svc.NewUserService(repo.NewUserRepository())
+	us := svc.NewUserService(repo.NewPostgresUserRepository())
 
 	var user models.User
 	if err, code := help.DecodeStruct(r, &user); err != nil {

@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestAdd(t *testing.T) {
-	ur := repo.NewUserRepository()
+	ur := repo.NewPostgresUserRepository()
 
 	if err := ur.Add(user); err != nil {
 		t.Fatalf("Add is broken: %v", err)
@@ -31,7 +31,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestAreValidCredentials(t *testing.T) {
-	ur := repo.NewUserRepository()
+	ur := repo.NewPostgresUserRepository()
 
 	exists, err := ur.AreValidCredentials(user)
 
@@ -46,7 +46,7 @@ func TestAreValidCredentials(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	ur := repo.NewUserRepository()
+	ur := repo.NewPostgresUserRepository()
 
 	if err := ur.Delete(user); err != nil {
 		t.Fatalf("Delete is broken: %v", err)

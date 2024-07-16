@@ -19,7 +19,7 @@ type postgresUserRepository struct {
 	pool *sql.DB
 }
 
-func NewUserRepository() *postgresUserRepository {
+func NewPostgresUserRepository() *postgresUserRepository {
 	return &postgresUserRepository{db.Pool}
 }
 
