@@ -4,15 +4,16 @@ import (
 	"os"
 	"testing"
 
-	db "github.com/nohgo/go_networking/api/database"
+	repo_mock "github.com/nohgo/go_networking/api/database/repositories/mocks"
 	"github.com/nohgo/go_networking/api/models"
+	svc "github.com/nohgo/go_networking/api/services"
 )
 
 var user models.User
 
 func TestMain(m *testing.M) {
-	db.CreatePool()
-	defer db.ClosePool()
+	mur := repo_mock.NewMockUserRepository()
+	us := svc.NewUserService(mur)
 	user = models.User{
 		Username: "bob",
 		Password: "hello",
