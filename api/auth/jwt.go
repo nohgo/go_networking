@@ -27,8 +27,7 @@ func CreateToken(name string) (tokenString string, err error) {
 	return
 }
 
-// middleware should be used to parse token
-func parseToken(tokenString string) (string, error) {
+func ParseToken(tokenString string) (string, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (any, error) {
 		return []byte(key), nil
 	})

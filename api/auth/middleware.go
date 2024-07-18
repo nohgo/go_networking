@@ -13,7 +13,7 @@ func ProtectedMiddle(next func(w http.ResponseWriter, r *http.Request)) func(w h
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		parsedName, err := parseToken(token[0][7:])
+		parsedName, err := ParseToken(token[0][7:])
 		if err != nil {
 			log.Println("Token is invalid")
 			w.WriteHeader(401)
