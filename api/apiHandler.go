@@ -15,14 +15,14 @@ import (
 type ApiHandler struct{}
 
 func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /api/auth/sign-up", register)
+	mux.HandleFunc("POST /api/auth/sign-up", Register)
 	mux.HandleFunc("POST /api/auth/login", login)
 	mux.HandleFunc("GET /api/cars", auth.ProtectedMiddle(getAll))
 	mux.HandleFunc("POST /api/cars", auth.ProtectedMiddle(postCar))
 	mux.HandleFunc("DELETE /api/cars", auth.ProtectedMiddle(deleteCar))
 }
 
-func register(w http.ResponseWriter, r *http.Request) {
+func Register(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 
 	us := svc.NewUserService(repo.NewPostgresUserRepository())
