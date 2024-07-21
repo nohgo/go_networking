@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+// The Router interface provides a framework to easily initialize grouped subroutes
+// The InitRoutes method should contain a series of [mux.HandleFunc()] calls.
 type Router interface {
 	InitRoutes(*http.ServeMux)
 }

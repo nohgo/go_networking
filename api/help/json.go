@@ -1,3 +1,4 @@
+// The help package contains helper functions
 package help
 
 import (
@@ -8,6 +9,7 @@ import (
 	"strings"
 )
 
+// Decode struct takes a request with an http body and a struct it should decode to. It returns sanitized errors.
 func DecodeStruct[F any](r *http.Request, dest *F) (error, int) {
 	err := json.NewDecoder(r.Body).Decode(dest)
 

@@ -1,3 +1,5 @@
+// The api package contains the routes starting with /api.
+// Proper usage is creating an [api.ApiHandler] then calling its InitRoutes function
 package api
 
 import (
@@ -12,6 +14,8 @@ import (
 	svc "github.com/nohgo/go_networking/api/services"
 )
 
+// The ApiHandler struct adheres to the [main.Router] interface and initializes the api routes.
+// Create the ApiHandler with a struct literal and then call InitRoutes
 type ApiHandler struct{}
 
 func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
