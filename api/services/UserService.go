@@ -44,3 +44,7 @@ func (us *UserService) Login(user models.User) (token string, err error) {
 
 	return token, nil
 }
+
+func (us *UserService) Delete(user models.User) error {
+	return us.ur.Delete(user)
+}

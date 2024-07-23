@@ -20,7 +20,8 @@ type ApiHandler struct{}
 
 func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/auth/sign-up", Register)
-	mux.HandleFunc("POST /api/auth/login", login)
+	mux.HandleFunc("POST /api/auth/login", Login)
+	mux.HandleFunc("DELETE /api/auth", auth.ProtectedMiddle(DeleteUser))
 	mux.HandleFunc("GET /api/cars", auth.ProtectedMiddle(getAll))
 	mux.HandleFunc("POST /api/cars", auth.ProtectedMiddle(postCar))
 	mux.HandleFunc("DELETE /api/cars", auth.ProtectedMiddle(deleteCar))
@@ -42,7 +43,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func login(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 	us := svc.NewUserService(repo.NewPostgresUserRepository())
 
@@ -118,5 +119,20 @@ func deleteCar(w http.ResponseWriter, r *http.Request) {
 	if err := cs.Delete(id, username); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+}
+
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.RemoteAddr)
+
+	username := r.Header.Get("Authorization")
+	if len(username) == 0 {
+		http.Error(w, "Invalid JWT token", http.StatusBadRequest)
+	}
+	us := svc.NewUserService(repo.NewPostgresUserRepository())
+
+	err := us.Delete(models.User{Username: username})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

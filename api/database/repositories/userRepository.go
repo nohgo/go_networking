@@ -56,6 +56,9 @@ func (ur *postgresUserRepository) AreValidCredentials(user models.User) (bool, e
 
 // deletes a user from the database
 func (ur *postgresUserRepository) Delete(user models.User) error {
+	if _, err := ur.pool.Exec("DELETE FROM cars WHERE username=$1", user.Username); err != nil {
+		return err
+	}
 	_, err := ur.pool.Exec("DELETE FROM users WHERE username=$1", user.Username)
 	return err
 }
