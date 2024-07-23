@@ -22,9 +22,9 @@ func (apiHandler ApiHandler) InitRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/auth/sign-up", Register)
 	mux.HandleFunc("POST /api/auth/login", Login)
 	mux.HandleFunc("DELETE /api/auth", auth.ProtectedMiddle(DeleteUser))
-	mux.HandleFunc("GET /api/cars", auth.ProtectedMiddle(getAll))
-	mux.HandleFunc("POST /api/cars", auth.ProtectedMiddle(postCar))
-	mux.HandleFunc("DELETE /api/cars", auth.ProtectedMiddle(deleteCar))
+	mux.HandleFunc("GET /api/cars", auth.ProtectedMiddle(GetAll))
+	mux.HandleFunc("POST /api/cars", auth.ProtectedMiddle(PostCar))
+	mux.HandleFunc("DELETE /api/cars", auth.ProtectedMiddle(DeleteCar))
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +62,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	help.SendJson(w, token)
 }
 
-func getAll(w http.ResponseWriter, r *http.Request) {
+func GetAll(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 
 	cs := svc.NewCarService(repo.NewCarRepository())
@@ -77,7 +77,7 @@ func getAll(w http.ResponseWriter, r *http.Request) {
 	help.SendJson(w, cars)
 }
 
-func postCar(w http.ResponseWriter, r *http.Request) {
+func PostCar(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 
 	cs := svc.NewCarService(repo.NewCarRepository())
@@ -88,7 +88,7 @@ func postCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := r.Header.Get("authorization")
+	username := r.Header.Get("Authorization")
 	if err := cs.Add(car, username); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -96,7 +96,7 @@ func postCar(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func deleteCar(w http.ResponseWriter, r *http.Request) {
+func DeleteCar(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr)
 
 	queries := r.URL.Query()
