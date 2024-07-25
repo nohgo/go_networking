@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/nohgo/go_networking/api"
@@ -49,7 +50,6 @@ func TestFullProgram(t *testing.T) {
 	if err != nil {
 		t.Fatalf("json marshalling register returned an error: %v", err)
 	}
-
 	r, err := http.NewRequest("POST", "/api/auth/register", bytes.NewBuffer(body))
 	if err != nil {
 		t.Fatalf("Register request creation failed: %v", err)
@@ -92,20 +92,16 @@ func TestFullProgram(t *testing.T) {
 	}
 
 	//Deleting Cars
-	body, err = json.Marshal(cars[0])
-	if err != nil {
-		t.Fatalf("Json marshalling in delete car failed: %v", err)
-	}
+	carId := cars[0].Id
 	r, err = http.NewRequest("DELETE", "/api/cars", bytes.NewBuffer(body))
+	params := r.URL.Query()
+	params.Add("id", strconv.Itoa(carId))
+	r.URL.RawQuery = params.Encode()
 	r.Header.Add("Authorization", "Bearer "+token)
 	sendRequest(t, "Delete car", r, auth.ProtectedMiddle(api.DeleteCar))
 
 	//Deleting User
-	body, err = json.Marshal(mockUser)
-	if err != nil {
-		t.Fatalf("Json marshalling in delete user failed: %v", err)
-	}
-	r, err = http.NewRequest("DELETE", "/auth", bytes.NewBuffer(body))
+	r, err = http.NewRequest("DELETE", "/auth", nil)
 	r.Header.Add("Authorization", "Bearer "+token)
-	sendRequest(t, "Delete user", r, auth.ProtectedMiddle(api.DeleteCar))
+	sendRequest(t, "Delete user", r, auth.ProtectedMiddle(api.DeleteUser))
 }
