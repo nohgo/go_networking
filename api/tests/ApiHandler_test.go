@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/nohgo/go_networking/api"
+	"github.com/nohgo/go_networking/api/auth"
 	db "github.com/nohgo/go_networking/api/database"
 	"github.com/nohgo/go_networking/api/models"
 )
@@ -58,7 +59,10 @@ func TestFullProgram(t *testing.T) {
 	//Login Testing
 	r, err = http.NewRequest("POST", "/api/auth/login", bytes.NewBuffer(body))
 	loginResponse := sendRequest(t, "Login", r, api.Login)
-	token := loginResponse.Body.String()
+	var token string
+	if err = json.Unmarshal(loginResponse.Body.Bytes(), &token); err != nil {
+		t.Fatalf("Login response returned a nil token")
+	}
 	if len(token) == 0 {
 		t.Fatalf("Login response returned a nil token")
 	}
@@ -72,13 +76,13 @@ func TestFullProgram(t *testing.T) {
 
 		r, err := http.NewRequest("POST", "/api/cars", bytes.NewBuffer(body))
 		r.Header.Add("Authorization", "Bearer "+token)
-		sendRequest(t, "Post Car", r, api.PostCar)
+		sendRequest(t, "Post Car", r, auth.ProtectedMiddle(api.PostCar))
 	}
 
 	//Getting Cars
 	r, err = http.NewRequest("GET", "/api/cars", nil)
 	r.Header.Add("Authorization", "Bearer "+token)
-	getAllResponse := sendRequest(t, "Get Cars", r, api.GetAll)
+	getAllResponse := sendRequest(t, "Get Cars", r, auth.ProtectedMiddle(api.GetAll))
 
 	var cars []models.Car
 	json.NewDecoder(getAllResponse.Body).Decode(&cars)
@@ -93,8 +97,8 @@ func TestFullProgram(t *testing.T) {
 		t.Fatalf("Json marshalling in delete car failed: %v", err)
 	}
 	r, err = http.NewRequest("DELETE", "/api/cars", bytes.NewBuffer(body))
-	r.Header.Add("Authorization", token)
-	sendRequest(t, "Delete car", r, api.DeleteCar)
+	r.Header.Add("Authorization", "Bearer "+token)
+	sendRequest(t, "Delete car", r, auth.ProtectedMiddle(api.DeleteCar))
 
 	//Deleting User
 	body, err = json.Marshal(mockUser)
@@ -102,6 +106,6 @@ func TestFullProgram(t *testing.T) {
 		t.Fatalf("Json marshalling in delete user failed: %v", err)
 	}
 	r, err = http.NewRequest("DELETE", "/auth", bytes.NewBuffer(body))
-	r.Header.Add("Authorization", token)
-	sendRequest(t, "Delete user", r, api.DeleteUser)
+	r.Header.Add("Authorization", "Bearer "+token)
+	sendRequest(t, "Delete user", r, auth.ProtectedMiddle(api.DeleteCar))
 }
