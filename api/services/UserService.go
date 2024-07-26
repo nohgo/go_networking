@@ -21,6 +21,9 @@ func NewUserService(ur repo.UserRepository) *UserService {
 
 // Adds a user to the database
 func (us *UserService) Register(user models.User) (err error) {
+	if len(user.Username) == 0 || len(user.Password) == 0 {
+		return &models.UserError{}
+	}
 	err = us.ur.Add(user)
 	return
 }

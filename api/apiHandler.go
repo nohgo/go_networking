@@ -3,6 +3,7 @@
 package api
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -37,7 +38,12 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), code)
 	}
 
-	if err := us.Register(user); err != nil {
+	err := us.Register(user)
+	if errors.Is(err, &models.UserError{}) {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
