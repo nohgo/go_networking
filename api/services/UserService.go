@@ -30,6 +30,9 @@ func (us *UserService) Register(user models.User) (err error) {
 
 // Checks whether a user's credentials are in the datbase and returns a JWT on success
 func (us *UserService) Login(user models.User) (token string, err error) {
+	if len(user.Username) == 0 || len(user.Password) == 0 {
+		return "", &models.UserError{}
+	}
 	exists, err := us.ur.AreValidCredentials(user)
 
 	if err != nil {

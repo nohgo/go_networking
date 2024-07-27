@@ -60,8 +60,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := us.Login(user)
 
-	if err != nil {
+	if errors.Is(err, &models.UserError{}) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
