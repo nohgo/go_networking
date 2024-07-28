@@ -52,5 +52,8 @@ func (us *UserService) Login(user models.User) (token string, err error) {
 }
 
 func (us *UserService) Delete(user models.User) error {
+	if len(user.Username) == 0 {
+		return &models.UserError{}
+	}
 	return us.ur.Delete(user)
 }
