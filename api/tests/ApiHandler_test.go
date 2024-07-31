@@ -48,6 +48,17 @@ func TestMain(m *testing.M) {
 
 func TestFullProgram(t *testing.T) {
 
+	for _, val := range mockcars {
+		body, err := json.marshal(val)
+		if err != nil {
+			t.fatalf("json marshalling adding cars returned an error")
+		}
+
+		r, err := http.newrequest("post", "/api/cars", bytes.newbuffer(body))
+		r.header.add("authorization", "bearer "+token)
+		sendrequest(t, "post car", r, auth.protectedmiddle(api.postcar))
+	}
+
 	//Getting Cars
 	r, err = http.NewRequest("GET", "/api/cars", nil)
 	r.Header.Add("Authorization", "Bearer "+token)
